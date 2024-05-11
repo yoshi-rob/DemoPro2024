@@ -1,0 +1,21 @@
+<launch>
+    <arg name="joy_dev" default="/dev/input/js0" />
+    <arg name="joy_node" default="true" />
+    <arg name="robot_tf" default="true" />
+    <arg name="rviz_config" default="$(find bullet)/rviz/bullet_launcher.rviz" />
+
+    <group if="$(arg joy_node)">
+        <node name="joy_node" pkg="joy" type="joy_node" output="screen" if="$(arg joy_node)">
+            <param name="dev" value="$(arg joy_dev)" />
+        </node>
+    </group>
+
+    <node name="bullet_launcher" pkg="bullet" type="bullet_launcher" output="screen"/>
+
+    <group if="$(arg robot_tf)">
+        <node name="map_to_base_link" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 1.2 0 0 /map /base_link" />
+    </group>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
+
+</launch>
