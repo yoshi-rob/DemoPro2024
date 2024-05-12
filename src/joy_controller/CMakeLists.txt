@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  tf2
+  tf2_ros
 )
 
 ## System dependencies are found with CMake's conventions
@@ -207,5 +209,10 @@ include_directories(
 
 add_executable(joy_controller src/joy_controller.cpp)
 target_link_libraries(joy_controller
+  ${catkin_LIBRARIES}
+)
+
+add_executable(robot_tf_broadcaster src/robot_tf_broadcaster.cpp)
+target_link_libraries(robot_tf_broadcaster
   ${catkin_LIBRARIES}
 )

@@ -14,7 +14,7 @@ class JoyController {
     void joyCallback(const sensor_msgs::Joy::ConstPtr &msg) {
         geometry_msgs::Twist twist;
         twist.linear.x = msg->axes[1] * linear_scale_;
-        twist.angular.z = msg->axes[2] * angular_scale_;
+        twist.angular.z = msg->axes[3] * angular_scale_;
         cmd_vel_pub_.publish(twist);
     }
 
