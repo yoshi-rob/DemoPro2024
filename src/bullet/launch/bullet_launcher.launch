@@ -12,6 +12,7 @@
             <param name="cmd_vel_expire" value="5.0" />
         </node>
         <node pkg="joy_controller" type="joy_controller" name="joy_controller" output="screen" />
+        <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 /map /odom" />
     </group>
 
     <group if="$(arg joy_node)">
@@ -23,7 +24,12 @@
     <node name="bullet_launcher" pkg="bullet" type="bullet_launcher" output="screen"/>
 
     <group if="$(arg robot_tf)">
-        <node name="map_to_base_link" pkg="tf2_ros" type="static_transform_publisher" args="2 1 0 1.2 0 0 /map /base_link" />
+        <!-- <node name="map_to_base_link" pkg="tf2_ros" type="static_transform_publisher" args="2 1 0 1.2 0 0 /map /base_link" /> -->
+        <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 /map /odom" />
+        <node name="robot_tf_broadcaster" pkg="joy_controller" type="robot_tf_broadcaster" output="screen" />
+        <node name="joy_controller" pkg="joy_controller" type="joy_controller" output="screen">
+            <remap from="/ypspur_ros/cmd_vel" to="/cmd_vel" />
+        </node>
     </group>
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
