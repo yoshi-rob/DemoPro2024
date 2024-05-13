@@ -1,3 +1,4 @@
+#include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <ros/ros.h>
@@ -13,6 +14,7 @@ class BulletLauncher {
     ros::NodeHandle nh_;
     ros::Time last_time_;
     ros::Subscriber joy_sub_;
+    ros::Publisher bullets_pub_;
     sensor_msgs::Joy last_joy_;
     tf2_ros::Buffer tf_buffer_;
     tf2_ros::TransformListener tf_listener_;
@@ -31,6 +33,7 @@ class BulletLauncher {
     };
 
     std::vector<Bullet> bullets_;
+    geometry_msgs::PoseArray bullet_poses_;
     const int max_bullets_ = 5;
     int bullet_count_ = 0;
     const double bullet_speed_ = 0.2;
@@ -39,7 +42,9 @@ class BulletLauncher {
   public:
     BulletLauncher() : nh_(), tf_buffer_(), tf_listener_(tf_buffer_) {
         joy_sub_ = nh_.subscribe("joy", 10, &BulletLauncher::joyCallback, this);
+        bullets_pub_ = nh_.advertise<geometry_msgs::PoseArray>("bullets", 10);
         robot_pose_.header.frame_id = map_frame_id_;
+        bullet_poses_.header.frame_id = map_frame_id_;
         last_time_ = ros::Time::now();
     }
 
@@ -75,6 +80,7 @@ class BulletLauncher {
 
     void updateBullet() {
         ros::Time current_time = ros::Time::now();
+        bullet_poses_.poses.clear();
 
         for (auto &bullet : bullets_) {
             double dt = (current_time - bullet.last_time).toSec();
@@ -89,8 +95,13 @@ class BulletLauncher {
                 continue;
             }
 
-            publishBulletTransform(bullet);
+            // publishBulletTransform(bullet);
+
+            bullet_poses_.header.stamp = ros::Time::now();
+            bullet_poses_.poses.push_back(bullet.pose.pose);
         }
+
+        bullets_pub_.publish(bullet_poses_);
 
         bullets_.erase(std::remove_if(bullets_.begin(), bullets_.end(),
                                       [&](const Bullet &bullet) {
