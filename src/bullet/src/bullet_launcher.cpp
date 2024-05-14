@@ -1,3 +1,4 @@
+#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
@@ -5,7 +6,6 @@
 #include <sensor_msgs/Joy.h>
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
 #include <vector>
 
@@ -18,14 +18,12 @@ class BulletLauncher {
     sensor_msgs::Joy last_joy_;
     tf2_ros::Buffer tf_buffer_;
     tf2_ros::TransformListener tf_listener_;
-    tf2_ros::TransformBroadcaster tf_broadcaster_;
 
     geometry_msgs::PoseStamped robot_pose_;
     const std::string map_frame_id_ = "map";
 
     struct Bullet {
-        std::string frame_id;
-        geometry_msgs::PoseStamped pose;
+        geometry_msgs::Pose pose;
         ros::Time created_time;
         ros::Time last_time;
         double speed;
@@ -58,24 +56,14 @@ class BulletLauncher {
     }
 
     void createBullet() {
-        geometry_msgs::PoseStamped bullet_pose;
-        bullet_pose.header.stamp = ros::Time::now();
-        bullet_pose.header.frame_id = map_frame_id_;
-        bullet_pose.pose.position.x = robot_pose_.pose.position.x;
-        bullet_pose.pose.position.y = robot_pose_.pose.position.y;
-        bullet_pose.pose.position.z = robot_pose_.pose.position.z;
-        bullet_pose.pose.orientation = robot_pose_.pose.orientation;
-        // ROS_INFO("Bullet created at (%f, %f)", bullet_pose_.pose.position.x, bullet_pose_.pose.position.y);
-
         Bullet new_bullet;
-        new_bullet.frame_id = "bullet" + std::to_string(bullet_count_++);
-        new_bullet.pose = bullet_pose;
+        new_bullet.pose = robot_pose_.pose;
         new_bullet.created_time = ros::Time::now();
         new_bullet.last_time = ros::Time::now();
         new_bullet.speed = bullet_speed_;
         new_bullet.lifetime = bullet_lifetime_;
         bullets_.push_back(new_bullet);
-        ROS_INFO("Bullet %s created", new_bullet.frame_id.c_str());
+        ROS_INFO("Bullet created");
     }
 
     void updateBullet() {
@@ -86,19 +74,17 @@ class BulletLauncher {
             double dt = (current_time - bullet.last_time).toSec();
             bullet.last_time = current_time;
 
-            double direction = tf2::getYaw(bullet.pose.pose.orientation);
-            bullet.pose.pose.position.x += bullet.speed * cos(direction) * dt;
-            bullet.pose.pose.position.y += bullet.speed * sin(direction) * dt;
+            double direction = tf2::getYaw(bullet.pose.orientation);
+            bullet.pose.position.x += bullet.speed * cos(direction) * dt;
+            bullet.pose.position.y += bullet.speed * sin(direction) * dt;
 
             if ((current_time - bullet.created_time).toSec() > bullet.lifetime) {
-                ROS_INFO("Bullet %s expired", bullet.frame_id.c_str());
+                ROS_INFO("Bullet expired");
                 continue;
             }
 
-            // publishBulletTransform(bullet);
-
             bullet_poses_.header.stamp = ros::Time::now();
-            bullet_poses_.poses.push_back(bullet.pose.pose);
+            bullet_poses_.poses.push_back(bullet.pose);
         }
 
         bullets_pub_.publish(bullet_poses_);
@@ -108,18 +94,6 @@ class BulletLauncher {
                                           return (current_time - bullet.created_time).toSec() > bullet.lifetime;
                                       }),
                        bullets_.end());
-    }
-
-    void publishBulletTransform(const Bullet &bullet) {
-        geometry_msgs::TransformStamped transform;
-        transform.header.stamp = ros::Time::now();
-        transform.header.frame_id = bullet.pose.header.frame_id;
-        transform.child_frame_id = bullet.frame_id;
-        transform.transform.translation.x = bullet.pose.pose.position.x;
-        transform.transform.translation.y = bullet.pose.pose.position.y;
-        transform.transform.translation.z = bullet.pose.pose.position.z;
-        transform.transform.rotation = bullet.pose.pose.orientation;
-        tf_broadcaster_.sendTransform(transform);
     }
 
     void getRobotPose() {
