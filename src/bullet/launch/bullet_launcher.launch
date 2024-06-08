@@ -4,34 +4,46 @@
     <arg name="ypspur" default="false" />
     <arg name="robot_tf" default="true" />
     <arg name="rviz_config" default="$(find bullet)/rviz/bullet_launcher.rviz" />
+    <arg name="robot_name" default="Robot1" />
 
-    <group if="$(arg ypspur)">
-        <node pkg="ypspur_ros" type="ypspur_ros" name="ypspur_ros">
-            <param name="param_file" value="/home/seki-y/researches/programs/platform/yp-robot-params/robot-params/speego.param" />
-            <param name="port" value="/dev/serial/by-id/usb-T-frog_project_T-frog_Driver-if00" />
-            <param name="cmd_vel_expire" value="5.0" />
+    <group ns="$(arg robot_name)">
+
+        <group if="$(arg ypspur)">
+            <node pkg="ypspur_ros" type="ypspur_ros" name="ypspur_ros">
+                <param name="param_file" value="/home/seki-y/researches/programs/platform/yp-robot-params/robot-params/speego.param" />
+                <param name="port" value="/dev/serial/by-id/usb-T-frog_project_T-frog_Driver-if00" />
+                <param name="cmd_vel_expire" value="5.0" />
+                <param name="odom_id" value="$(arg robot_name)/odom" />
+                <param name="base_link_id" value="$(arg robot_name)/base_link" />
+            </node>
+            <node pkg="joy_controller" type="joy_controller" name="joy_controller" output="screen" />
+            <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 /map $(arg robot_name)/odom" />
+        </group>
+
+        <group if="$(arg joy_node)">
+            <node name="joy_node" pkg="joy" type="joy_node" output="screen" if="$(arg joy_node)">
+                <param name="dev" value="$(arg joy_dev)" />
+            </node>
+        </group>
+
+        <node name="bullet_launcher" pkg="bullet" type="bullet_launcher" output="screen">
+            <param name="robot_frame_id" value="$(arg robot_name)/base_link" />
         </node>
-        <node pkg="joy_controller" type="joy_controller" name="joy_controller" output="screen" />
-        <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 /map /odom" />
-    </group>
 
-    <group if="$(arg joy_node)">
-        <node name="joy_node" pkg="joy" type="joy_node" output="screen" if="$(arg joy_node)">
-            <param name="dev" value="$(arg joy_dev)" />
-        </node>
-    </group>
+        <group if="$(arg robot_tf)">
+            <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 map $(arg robot_name)/odom" />
+            <node name="robot_tf_broadcaster" pkg="joy_controller" type="robot_tf_broadcaster" output="screen">
+                <param name="robot_frame_id" value="$(arg robot_name)/base_link" />
+                <param name="odom_frame_id" value="$(arg robot_name)/odom" />
+            </node>
+            <node name="joy_controller" pkg="joy_controller" type="joy_controller" output="screen">
+                <remap from="/ypspur_ros/cmd_vel" to="cmd_vel" />
+            </node>
+        </group>
 
-    <node name="bullet_launcher" pkg="bullet" type="bullet_launcher" output="screen"/>
-
-    <group if="$(arg robot_tf)">
-        <!-- <node name="map_to_base_link" pkg="tf2_ros" type="static_transform_publisher" args="2 1 0 1.2 0 0 /map /base_link" /> -->
-        <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 /map /odom" />
-        <node name="robot_tf_broadcaster" pkg="joy_controller" type="robot_tf_broadcaster" output="screen" />
-        <node name="joy_controller" pkg="joy_controller" type="joy_controller" output="screen">
-            <remap from="/ypspur_ros/cmd_vel" to="/cmd_vel" />
-        </node>
     </group>
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
+
 
 </launch>
