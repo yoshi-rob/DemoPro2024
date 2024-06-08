@@ -19,7 +19,8 @@ class BulletLauncher {
     tf2_ros::TransformListener tf_listener_;
 
     geometry_msgs::PoseStamped robot_pose_;
-    const std::string map_frame_id_ = "map";
+    std::string map_frame_id_;
+    std::string robot_frame_id_;
 
     struct Bullet {
         geometry_msgs::Pose pose;
@@ -39,8 +40,10 @@ class BulletLauncher {
     BulletLauncher() : nh_(), tf_buffer_(), tf_listener_(tf_buffer_) {
         joy_sub_ = nh_.subscribe("joy", 10, &BulletLauncher::joyCallback, this);
         bullets_pub_ = nh_.advertise<geometry_msgs::PoseArray>("bullets", 10);
-        robot_pose_.header.frame_id = map_frame_id_;
         bullet_poses_.header.frame_id = map_frame_id_;
+
+        map_frame_id_ = pnh_.param<std::string>("map_frame_id", "map");
+        robot_frame_id_ = pnh_.param<std::string>("robot_frame_id", "base_link");
     }
 
     void joyCallback(const sensor_msgs::Joy::ConstPtr &joy_msg) {
@@ -53,6 +56,7 @@ class BulletLauncher {
     }
 
     void createBullet() {
+        bullet_launcher.getRobotPose();
         Bullet new_bullet;
         new_bullet.pose = robot_pose_.pose;
         new_bullet.created_time = ros::Time::now();
@@ -96,7 +100,7 @@ class BulletLauncher {
     void getRobotPose() {
         geometry_msgs::TransformStamped transform;
         try {
-            transform = tf_buffer_.lookupTransform(map_frame_id_, "base_link", ros::Time(0));
+            transform = tf_buffer_.lookupTransform(map_frame_id_, robot_frame_id_, ros::Time(0));
         } catch (tf2::TransformException &ex) {
             ROS_WARN("%s", ex.what());
             return;
@@ -113,7 +117,6 @@ int main(int argc, char **argv) {
     BulletLauncher bullet_launcher;
     ros::Rate loop_rate(10);
     while (ros::ok()) {
-        bullet_launcher.getRobotPose();
         bullet_launcher.updateBullet();
         ros::spinOnce();
         loop_rate.sleep();
