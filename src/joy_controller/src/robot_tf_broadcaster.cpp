@@ -9,7 +9,7 @@ class RobotTfBroadcaster {
     ros::Subscriber cmd_vel_sub_;
     tf2_ros::TransformBroadcaster tf_broadcaster_;
     geometry_msgs::Twist last_cmd_vel_;
-    std::string base_frame_id_;
+    std::string robot_frame_id_;
     std::string odom_frame_id_;
     ros::Time last_time_;
     double x_ = 0.0, y_ = 0.0, th_ = 0.0;
@@ -18,7 +18,7 @@ class RobotTfBroadcaster {
     RobotTfBroadcaster() : nh_() {
         cmd_vel_sub_ = nh_.subscribe("cmd_vel", 10, &RobotTfBroadcaster::cmdVelCallback, this);
 
-        base_frame_id_ = nh_.param<std::string>("base_frame_id", "base_link");
+        robot_frame_id_ = nh_.param<std::string>("robot_frame_id", "base_link");
         odom_frame_id_ = nh_.param<std::string>("odom_frame_id", "odom");
     }
 
