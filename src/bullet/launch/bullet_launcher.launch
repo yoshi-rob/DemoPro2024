@@ -4,7 +4,12 @@
     <arg name="ypspur" default="false" />
     <arg name="robot_tf" default="true" />
     <arg name="rviz_config" default="$(find bullet)/rviz/bullet_launcher.rviz" />
+
     <arg name="robot_name" default="Robot1" />
+    <arg name="opponent_robot_name" default="Robot2" />
+    <arg name="initial_x" default="0.0" />
+    <arg name="initial_y" default="0.0" />
+    <arg name="initial_th" default="0.0" />
 
     <group ns="$(arg robot_name)">
 
@@ -30,11 +35,19 @@
             <param name="robot_frame_id" value="$(arg robot_name)/base_link" />
         </node>
 
+        <node name="death_judge" pkg="bullet" type="death_judge" output="screen">
+            <param name="robot_frame_id" value="$(arg robot_name)/base_link" />
+            <remap from="bullets" to="/$(arg opponent_robot_name)/bullets" />
+        </node>
+
         <group if="$(arg robot_tf)">
             <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 map $(arg robot_name)/odom" />
             <node name="robot_tf_broadcaster" pkg="joy_controller" type="robot_tf_broadcaster" output="screen">
                 <param name="robot_frame_id" value="$(arg robot_name)/base_link" />
                 <param name="odom_frame_id" value="$(arg robot_name)/odom" />
+                <param name="initial_x" value="$(arg initial_x)" />
+                <param name="initial_y" value="$(arg initial_y)" />
+                <param name="initial_th" value="$(arg initial_th)" />
             </node>
             <node name="joy_controller" pkg="joy_controller" type="joy_controller" output="screen">
                 <remap from="/ypspur_ros/cmd_vel" to="cmd_vel" />
@@ -43,7 +56,5 @@
 
     </group>
 
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
-
-
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" /> -->
 </launch>
