@@ -20,7 +20,7 @@ class JoyController {
 
   public:
     JoyController() : nh_() {
-        joy_sub_ = nh_.subscribe("/joy", 10, &JoyController::joyCallback, this);
+        joy_sub_ = nh_.subscribe("joy", 10, &JoyController::joyCallback, this);
         cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/ypspur_ros/cmd_vel", 1, true);
     };
     ~JoyController(){};
