@@ -213,3 +213,8 @@ add_executable(bullet_launcher src/bullet_launcher.cpp)
 target_link_libraries(bullet_launcher
   ${catkin_LIBRARIES}
 )
+
+add_executable(death_judge src/death_judge.cpp)
+target_link_libraries(death_judge
+  ${catkin_LIBRARIES}
+)
