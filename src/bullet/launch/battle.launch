@@ -1,0 +1,22 @@
+<launch>
+    <include file="$(find bullet)/launch/bullet_launcher.launch">
+        <arg name="joy_dev" value="/dev/input/js2" />
+        <arg name="robot_name" value="Robot1" />
+        <arg name="opponent_robot_name" value="Robot2" />
+        <arg name="initial_x" value="0.0" />
+        <arg name="initial_y" value="0.0" />
+        <arg name="initial_th" value="0.0" />
+    </include>
+
+    <include file="$(find bullet)/launch/bullet_launcher.launch">
+        <arg name="joy_dev" value="/dev/input/js2" />
+        <arg name="robot_name" value="Robot2" />
+        <arg name="opponent_robot_name" value="Robot1" />
+        <arg name="initial_x" value="3.0" />
+        <arg name="initial_y" value="0.0" />
+        <arg name="initial_th" value="3.14159265359" />
+    </include>
+
+    <arg name="rviz_config" default="$(find bullet)/rviz/bullet_launcher.rviz" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
+</launch>

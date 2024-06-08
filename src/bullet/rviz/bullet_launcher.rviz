@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /PoseArray2
       Splitter Ratio: 0.5
     Tree Height: 614
   - Class: rviz/Selection
@@ -62,6 +63,10 @@ Visualization Manager:
           Value: true
         Robot1/odom:
           Value: true
+        Robot2/base_link:
+          Value: true
+        Robot2/odom:
+          Value: true
         map:
           Value: true
       Marker Alpha: 1
@@ -74,6 +79,9 @@ Visualization Manager:
         map:
           Robot1/odom:
             Robot1/base_link:
+              {}
+          Robot2/odom:
+            Robot2/base_link:
               {}
       Update Interval: 0
       Value: true
@@ -92,6 +100,23 @@ Visualization Manager:
       Shaft Radius: 0.009999999776482582
       Shape: Arrow (Flat)
       Topic: /Robot1/bullets
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Arrow Length: 0.30000001192092896
+      Axes Length: 0.30000001192092896
+      Axes Radius: 0.009999999776482582
+      Class: rviz/PoseArray
+      Color: 0; 60; 255
+      Enabled: true
+      Head Length: 0.07000000029802322
+      Head Radius: 0.029999999329447746
+      Name: PoseArray
+      Queue Size: 10
+      Shaft Length: 0.23000000417232513
+      Shaft Radius: 0.009999999776482582
+      Shape: Arrow (Flat)
+      Topic: /Robot2/bullets
       Unreliable: false
       Value: true
   Enabled: true
