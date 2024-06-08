@@ -19,6 +19,9 @@ class RobotTfBroadcaster {
     RobotTfBroadcaster() : nh_(), pnh_("~") {
         cmd_vel_sub_ = nh_.subscribe("cmd_vel", 10, &RobotTfBroadcaster::cmdVelCallback, this);
 
+        x_ = pnh_.param<double>("initial_x", 0.0);
+        y_ = pnh_.param<double>("initial_y", 0.0);
+        th_ = pnh_.param<double>("initial_th", 0.0);
         robot_frame_id_ = pnh_.param<std::string>("robot_frame_id", "base_link");
         odom_frame_id_ = pnh_.param<std::string>("odom_frame_id", "odom");
     }
