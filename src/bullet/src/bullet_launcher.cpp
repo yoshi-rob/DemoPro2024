@@ -12,6 +12,7 @@
 class BulletLauncher {
   private:
     ros::NodeHandle nh_;
+    ros::NodeHandle pnh_;
     ros::Subscriber joy_sub_;
     ros::Publisher bullets_pub_;
     sensor_msgs::Joy last_joy_;
@@ -37,13 +38,13 @@ class BulletLauncher {
     const double bullet_lifetime_ = 10.0;
 
   public:
-    BulletLauncher() : nh_(), tf_buffer_(), tf_listener_(tf_buffer_) {
+    BulletLauncher() : nh_(), pnh_("~"), tf_buffer_(), tf_listener_(tf_buffer_) {
         joy_sub_ = nh_.subscribe("joy", 10, &BulletLauncher::joyCallback, this);
         bullets_pub_ = nh_.advertise<geometry_msgs::PoseArray>("bullets", 10);
-        bullet_poses_.header.frame_id = map_frame_id_;
 
         map_frame_id_ = pnh_.param<std::string>("map_frame_id", "map");
         robot_frame_id_ = pnh_.param<std::string>("robot_frame_id", "base_link");
+        bullet_poses_.header.frame_id = map_frame_id_;
     }
 
     void joyCallback(const sensor_msgs::Joy::ConstPtr &joy_msg) {
@@ -56,7 +57,7 @@ class BulletLauncher {
     }
 
     void createBullet() {
-        bullet_launcher.getRobotPose();
+        getRobotPose();
         Bullet new_bullet;
         new_bullet.pose = robot_pose_.pose;
         new_bullet.created_time = ros::Time::now();
