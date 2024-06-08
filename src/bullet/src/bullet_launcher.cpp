@@ -3,7 +3,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <ros/ros.h>
-#include <sensor_msgs/Joy.h>
+#include <std_msgs/Bool.h>
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/transform_listener.h>
@@ -13,9 +13,8 @@ class BulletLauncher {
   private:
     ros::NodeHandle nh_;
     ros::NodeHandle pnh_;
-    ros::Subscriber joy_sub_;
+    ros::Subscriber shoot_sub_;
     ros::Publisher bullets_pub_;
-    sensor_msgs::Joy last_joy_;
     tf2_ros::Buffer tf_buffer_;
     tf2_ros::TransformListener tf_listener_;
 
@@ -34,26 +33,27 @@ class BulletLauncher {
     std::vector<Bullet> bullets_;
     geometry_msgs::PoseArray bullet_poses_;
     const int max_bullets_ = 5;
-    const double bullet_speed_ = 0.2;
-    const double bullet_lifetime_ = 10.0;
+    double bullet_speed_;
+    double bullet_lifetime_;
 
   public:
     BulletLauncher() : nh_(), pnh_("~"), tf_buffer_(), tf_listener_(tf_buffer_) {
-        joy_sub_ = nh_.subscribe("joy", 10, &BulletLauncher::joyCallback, this);
+        shoot_sub_ = nh_.subscribe("shoot", 10, &BulletLauncher::shootCallback, this);
         bullets_pub_ = nh_.advertise<geometry_msgs::PoseArray>("bullets", 10);
 
         map_frame_id_ = pnh_.param<std::string>("map_frame_id", "map");
         robot_frame_id_ = pnh_.param<std::string>("robot_frame_id", "base_link");
+        bullet_speed_ = pnh_.param<double>("bullet_speed", 1.0);
+        bullet_lifetime_ = pnh_.param<double>("bullet_lifetime", 10.0);
         bullet_poses_.header.frame_id = map_frame_id_;
     }
 
-    void joyCallback(const sensor_msgs::Joy::ConstPtr &joy_msg) {
-        if (joy_msg->buttons[0] == 1 && last_joy_.buttons[0] == 0) {
+    void shootCallback(const std_msgs::Bool::ConstPtr &shoot_msg) {
+        if (shoot_msg->data) {
             if (bullets_.size() < max_bullets_) {
                 createBullet();
             }
         }
-        last_joy_ = *joy_msg;
     }
 
     void createBullet() {

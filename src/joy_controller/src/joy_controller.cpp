@@ -1,27 +1,44 @@
 #include "geometry_msgs/Twist.h"
 #include "ros/ros.h"
 #include "sensor_msgs/Joy.h"
+#include "std_msgs/Bool.h"
 
 class JoyController {
   private:
     ros::NodeHandle nh_;
+    ros::NodeHandle pnh_;
     ros::Subscriber joy_sub_;
     ros::Publisher cmd_vel_pub_;
+    ros::Publisher shoot_pub_;
+    sensor_msgs::Joy last_joy_;
+    bool has_joy_msg_ = false;
 
-    double linear_scale_ = 0.1;
-    double angular_scale_ = 0.5;
+    double max_linear_vel_;
+    double max_angular_vel_;
 
     void joyCallback(const sensor_msgs::Joy::ConstPtr &msg) {
         geometry_msgs::Twist twist;
-        twist.linear.x = msg->axes[1] * linear_scale_;
-        twist.angular.z = msg->axes[3] * angular_scale_;
+        twist.linear.x = msg->axes[1] * max_linear_vel_;
+        twist.angular.z = msg->axes[3] * max_angular_vel_;
         cmd_vel_pub_.publish(twist);
+
+        if (has_joy_msg_ && msg->buttons[5] == 1 && last_joy_.buttons[5] == 0) {
+            std_msgs::Bool shoot;
+            shoot.data = true;
+            shoot_pub_.publish(shoot);
+        }
+        last_joy_ = *msg;
+        has_joy_msg_ = true;
     }
 
   public:
-    JoyController() : nh_() {
+    JoyController() : nh_(), pnh_("~") {
         joy_sub_ = nh_.subscribe("joy", 10, &JoyController::joyCallback, this);
-        cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/ypspur_ros/cmd_vel", 1, true);
+        cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("ypspur_ros/cmd_vel", 1, true);
+        shoot_pub_ = nh_.advertise<std_msgs::Bool>("shoot", 1, true);
+
+        max_linear_vel_ = pnh_.param<double>("max_linear_vel", 0.5);
+        max_angular_vel_ = pnh_.param<double>("max_angular_vel", 1.0);
     };
     ~JoyController(){};
 };

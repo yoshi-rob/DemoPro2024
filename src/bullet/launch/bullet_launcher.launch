@@ -21,7 +21,10 @@
                 <param name="odom_id" value="$(arg robot_name)/odom" />
                 <param name="base_link_id" value="$(arg robot_name)/base_link" />
             </node>
-            <node pkg="joy_controller" type="joy_controller" name="joy_controller" output="screen" />
+            <node pkg="joy_controller" type="joy_controller" name="joy_controller" output="screen">
+                <param name="max_linear_vel" value="0.5" />
+                <param name="max_angular_vel" value="1.0" />
+            </node>
             <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 /map $(arg robot_name)/odom" />
         </group>
 
@@ -33,6 +36,8 @@
 
         <node name="bullet_launcher" pkg="bullet" type="bullet_launcher" output="screen">
             <param name="robot_frame_id" value="$(arg robot_name)/base_link" />
+            <param name="bullet_speed" value="1.0" />
+            <param name="bullet_lifetime" value="10.0" />
         </node>
 
         <node name="death_judge" pkg="bullet" type="death_judge" output="screen">
@@ -50,7 +55,9 @@
                 <param name="initial_th" value="$(arg initial_th)" />
             </node>
             <node name="joy_controller" pkg="joy_controller" type="joy_controller" output="screen">
-                <remap from="/ypspur_ros/cmd_vel" to="cmd_vel" />
+                <param name="max_linear_vel" value="0.5" />
+                <param name="max_angular_vel" value="1.0" />
+                <remap from="ypspur_ros/cmd_vel" to="cmd_vel" />
             </node>
         </group>
 
