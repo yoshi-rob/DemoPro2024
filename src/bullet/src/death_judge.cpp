@@ -37,7 +37,7 @@ class DeathJudge {
         try {
             transform = tf_buffer_.lookupTransform(map_frame_id_, robot_frame_id_, ros::Time(0));
         } catch (tf2::TransformException &ex) {
-            ROS_ERROR("%s", ex.what());
+            ROS_WARN("%s", ex.what());
             return;
         }
         robot_pose_.pose.position.x = transform.transform.translation.x;
