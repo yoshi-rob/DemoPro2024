@@ -1,0 +1,5 @@
+<launch>
+    <arg name="rviz_config" default="$(find bullet)/rviz/bullet_launcher.rviz" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find my_map_server)/map/field2.yaml" output="screen" />
+</launch>
