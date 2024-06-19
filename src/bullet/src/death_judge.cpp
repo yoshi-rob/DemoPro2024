@@ -5,9 +5,9 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
+#include "audio_player/audio_player.h"
 #include <future>
 #include <thread>
-#include "audio_player/audio_player.h"
 
 class DeathJudge {
   private:
@@ -37,7 +37,7 @@ class DeathJudge {
 
         audio_player_ = std::make_unique<AudioPlayer>();
         // TODO: wavファイルを用意する
-        audio_player_->loadSound("game_over", "/home/nakao-t/DemoPro2024/src/bullet/sound/game_over_voice.wav");
+        audio_player_->loadSound("game_over", "/home/seki-y/DemoPro2024/src/bullet/sound/game_over_voice.wav");
     }
 
     void bulletsCallback(const geometry_msgs::PoseArray::ConstPtr &bullets_msg) { bullet_poses_ = *bullets_msg; }
@@ -62,11 +62,10 @@ class DeathJudge {
             double distance = std::hypot(bullet.position.x - robot_pose_.pose.position.x,
                                          bullet.position.y - robot_pose_.pose.position.y);
             if (distance < death_distance_) {
-                std::async(std::launch::async, [this]() {
-                    audio_player_->playSound("shoot");
-                    std::this_thread::sleep_for(std::chrono::seconds(3));
-                }
-            );
+                // std::async(std::launch::async, [this]() {
+                audio_player_->playSound("shoot");
+                //     std::this_thread::sleep_for(std::chrono::seconds(3));
+                // });
                 return true;
             }
         }

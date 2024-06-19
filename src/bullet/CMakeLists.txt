@@ -11,6 +11,10 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   audio_player
 )
+find_package(SFML 2.5 COMPONENTS audio REQUIRED)
+
+catkin_package(
+)
 
 include_directories(
   include

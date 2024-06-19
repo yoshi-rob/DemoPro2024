@@ -94,7 +94,7 @@ class BulletLauncher {
                 tf2::Quaternion quat;
                 quat.setRPY(0, 0, direction);
                 bullet.pose.orientation = tf2::toMsg(quat);
-                ROS_INFO("Bullet bounced");
+                // ROS_INFO("Bullet bounced");
             } else {
                 bullet.pose.position.x = new_x;
                 bullet.pose.position.y = new_y;
@@ -147,7 +147,7 @@ class BulletLauncher {
         if (collision) {
             double normal_angle = atan2(normal_y, normal_x);                       // 壁の法線方向
             direction = normalizeAngle(2 * (normal_angle + M_PI / 2) - direction); // 反射方向
-            ROS_INFO("Angle: %f", normal_angle);
+            // ROS_INFO("Angle: %f", normal_angle);
             return true;
         }
 

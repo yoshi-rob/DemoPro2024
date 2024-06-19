@@ -12,6 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(SFML 2.5 COMPONENTS audio REQUIRED)
 
+catkin_package(
+)
+
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
