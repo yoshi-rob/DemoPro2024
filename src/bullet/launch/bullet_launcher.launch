@@ -1,8 +1,8 @@
 <launch>
     <arg name="joy_dev" default="/dev/input/js2" />
     <arg name="joy_node" default="true" />
-    <arg name="ypspur" default="false" />
-    <arg name="robot_tf" default="true" />
+    <arg name="ypspur" default="true" />
+    <arg name="robot_tf" default="false" />
     <arg name="rviz_config" default="$(find bullet)/rviz/bullet_launcher.rviz" />
 
     <arg name="robot_name" default="Robot1" />
@@ -15,7 +15,7 @@
 
         <group if="$(arg ypspur)">
             <node pkg="ypspur_ros" type="ypspur_ros" name="ypspur_ros">
-                <param name="param_file" value="/home/seki-y/researches/programs/platform/yp-robot-params/robot-params/speego.param" />
+                <param name="param_file" value="/home/nakao-t/researches/programs/platform/yp-robot-params/robot-params/beego.param" />
                 <param name="port" value="/dev/serial/by-id/usb-T-frog_project_T-frog_Driver-if00" />
                 <param name="cmd_vel_expire" value="5.0" />
                 <param name="odom_id" value="$(arg robot_name)/odom" />

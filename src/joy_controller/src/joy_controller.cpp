@@ -3,6 +3,10 @@
 #include "sensor_msgs/Joy.h"
 #include "std_msgs/Bool.h"
 
+#include <future>
+#include <thread>
+#include "audio_player/audio_player.h"
+
 class JoyController {
   private:
     ros::NodeHandle nh_;
@@ -16,6 +20,8 @@ class JoyController {
     double max_linear_vel_;
     double max_angular_vel_;
 
+    std::unique_ptr<AudioPlayer> audio_player_;
+
     void joyCallback(const sensor_msgs::Joy::ConstPtr &msg) {
         geometry_msgs::Twist twist;
         twist.linear.x = msg->axes[1] * max_linear_vel_;
@@ -23,6 +29,12 @@ class JoyController {
         cmd_vel_pub_.publish(twist);
 
         if (has_joy_msg_ && msg->buttons[5] == 1 && last_joy_.buttons[5] == 0) {
+            // 音声出力を非同期で実行
+            std::async(std::launch::async, [this]() {
+                audio_player_->playSound("shoot");
+                std::this_thread::sleep_for(std::chrono::seconds(3));
+            });
+
             std_msgs::Bool shoot;
             shoot.data = true;
             shoot_pub_.publish(shoot);
@@ -39,6 +51,9 @@ class JoyController {
 
         max_linear_vel_ = pnh_.param<double>("max_linear_vel", 0.5);
         max_angular_vel_ = pnh_.param<double>("max_angular_vel", 1.0);
+
+        audio_player_ = std::make_unique<AudioPlayer>();
+        audio_player_->loadSound("shoot", "/home/nakao-t/DemoPro2024/src/joy_controller/sound/677839__carlfnf__sniper-shoot.wav");
     };
     ~JoyController(){};
 };

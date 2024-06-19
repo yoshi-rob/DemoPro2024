@@ -5,6 +5,10 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
+#include <future>
+#include <thread>
+#include "audio_player/audio_player.h"
+
 class DeathJudge {
   private:
     ros::NodeHandle nh_;
@@ -21,6 +25,8 @@ class DeathJudge {
 
     const double death_distance_ = 0.1;
 
+    std::unique_ptr<AudioPlayer> audio_player_;
+
   public:
     DeathJudge() : nh_(), pnh_("~"), tf_buffer_(), tf_listener_(tf_buffer_) {
         bullets_sub_ = nh_.subscribe("bullets", 10, &DeathJudge::bulletsCallback, this);
@@ -28,6 +34,10 @@ class DeathJudge {
 
         map_frame_id_ = pnh_.param<std::string>("map_frame_id", "map");
         robot_frame_id_ = pnh_.param<std::string>("robot_frame_id", "base_link");
+
+        audio_player_ = std::make_unique<AudioPlayer>();
+        // TODO: wavファイルを用意する
+        audio_player_->loadSound("game_over", "/home/nakao-t/DemoPro2024/src/bullet/sound/game_over_voice.wav");
     }
 
     void bulletsCallback(const geometry_msgs::PoseArray::ConstPtr &bullets_msg) { bullet_poses_ = *bullets_msg; }
@@ -52,6 +62,11 @@ class DeathJudge {
             double distance = std::hypot(bullet.position.x - robot_pose_.pose.position.x,
                                          bullet.position.y - robot_pose_.pose.position.y);
             if (distance < death_distance_) {
+                std::async(std::launch::async, [this]() {
+                    audio_player_->playSound("shoot");
+                    std::this_thread::sleep_for(std::chrono::seconds(3));
+                }
+            );
                 return true;
             }
         }
