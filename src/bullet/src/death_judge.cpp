@@ -24,6 +24,7 @@ class DeathJudge {
     const double death_distance_ = 0.1;
 
     std::unique_ptr<AudioPlayer> audio_player_;
+    bool is_sound_ = false;
 
   public:
     DeathJudge() : nh_(), pnh_("~"), tf_buffer_(), tf_listener_(tf_buffer_) {
@@ -35,7 +36,7 @@ class DeathJudge {
 
         audio_player_ = std::make_unique<AudioPlayer>();
         // TODO: wavファイルを用意する
-        audio_player_->loadSound("game_over", "/home/nakao-t/DemoPro2024/src/bullet/sound/game_over_voice.wav");
+        audio_player_->loadSound("game_over", "/home/seki-y/DemoPro2024/src/bullet/sound/game_over.wav");
     }
 
     void bulletsCallback(const geometry_msgs::PoseArray::ConstPtr &bullets_msg) { bullet_poses_ = *bullets_msg; }
@@ -56,11 +57,15 @@ class DeathJudge {
 
     bool isDead() {
         getRobotPose();
+
         for (const auto &bullet : bullet_poses_.poses) {
             double distance = std::hypot(bullet.position.x - robot_pose_.pose.position.x,
                                          bullet.position.y - robot_pose_.pose.position.y);
             if (distance < death_distance_) {
-                audio_player_->playSound("shoot");
+                if (!is_sound_) {
+                    audio_player_->playSound("game_over");
+                    is_sound_ = true;
+                }
                 return true;
             }
         }
