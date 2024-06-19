@@ -12,10 +12,12 @@ class JoyController {
     ros::NodeHandle nh_;
     ros::NodeHandle pnh_;
     ros::Subscriber joy_sub_;
+    ros::Subscriber death_judge_sub_;
     ros::Publisher cmd_vel_pub_;
     ros::Publisher shoot_pub_;
     sensor_msgs::Joy last_joy_;
     bool has_joy_msg_ = false;
+    bool is_dead_ = false;
 
     double max_linear_vel_;
     double max_angular_vel_;
@@ -23,6 +25,9 @@ class JoyController {
     std::unique_ptr<AudioPlayer> audio_player_;
 
     void joyCallback(const sensor_msgs::Joy::ConstPtr &msg) {
+        if (is_dead_) {
+            return;
+        }
         geometry_msgs::Twist twist;
         twist.linear.x = msg->axes[1] * max_linear_vel_;
         twist.angular.z = msg->axes[3] * max_angular_vel_;
@@ -43,9 +48,20 @@ class JoyController {
         has_joy_msg_ = true;
     }
 
+    void deathJudgeCallback(const std_msgs::Bool::ConstPtr &msg) {
+        if (msg->data) {
+            is_dead_ = true;
+            geometry_msgs::Twist twist;
+            twist.linear.x = 0;
+            twist.angular.z = 0;
+            cmd_vel_pub_.publish(twist);
+        }
+    }
+
   public:
     JoyController() : nh_(), pnh_("~") {
         joy_sub_ = nh_.subscribe("joy", 10, &JoyController::joyCallback, this);
+        death_judge_sub_ = nh_.subscribe("death_judge", 10, &JoyController::deathJudgeCallback, this);
         cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("ypspur_ros/cmd_vel", 1, true);
         shoot_pub_ = nh_.advertise<std_msgs::Bool>("shoot", 1, true);
 

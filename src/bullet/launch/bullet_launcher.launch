@@ -1,8 +1,10 @@
 <launch>
     <arg name="joy_dev" default="/dev/input/js2" />
     <arg name="joy_node" default="true" />
-    <arg name="ypspur" default="true" />
-    <arg name="robot_tf" default="false" />
+    <arg name="ypspur" default="false" />
+    <arg name="robot_tf" default="true" />
+    <!-- [speego] or [beego] or [M1] -->
+    <arg name="robot_type" default="$(find starter)/config/speego.param" />
     <arg name="rviz_config" default="$(find bullet)/rviz/bullet_launcher.rviz" />
 
     <arg name="robot_name" default="Robot1" />
@@ -15,7 +17,7 @@
 
         <group if="$(arg ypspur)">
             <node pkg="ypspur_ros" type="ypspur_ros" name="ypspur_ros">
-                <param name="param_file" value="/home/nakao-t/researches/programs/platform/yp-robot-params/robot-params/beego.param" />
+                <param name="param_file" value="$(arg robot_type)" />
                 <param name="port" value="/dev/serial/by-id/usb-T-frog_project_T-frog_Driver-if00" />
                 <param name="cmd_vel_expire" value="5.0" />
                 <param name="odom_id" value="$(arg robot_name)/odom" />
@@ -25,7 +27,7 @@
                 <param name="max_linear_vel" value="0.5" />
                 <param name="max_angular_vel" value="1.0" />
             </node>
-            <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 /map $(arg robot_name)/odom" />
+            <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="$(arg initial_x) $(arg initial_y) 0 0 0 $(arg initial_th) /map $(arg robot_name)/odom" />
         </group>
 
         <group if="$(arg joy_node)">
