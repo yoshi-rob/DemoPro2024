@@ -4,8 +4,6 @@
 #include "std_msgs/Bool.h"
 
 #include "audio_player/audio_player.h"
-#include <future>
-#include <thread>
 
 class JoyController {
   private:
@@ -34,13 +32,6 @@ class JoyController {
         cmd_vel_pub_.publish(twist);
 
         if (has_joy_msg_ && msg->buttons[5] == 1 && last_joy_.buttons[5] == 0) {
-            // 音声出力を非同期で実行
-            // std::async(std::launch::async, [this]() {
-            audio_player_->playSound("shoot");
-            // std::this_thread::sleep_for(std::chrono::seconds(3));
-            // ROS_INFO("Shoot sound");
-            // });
-
             std_msgs::Bool shoot;
             shoot.data = true;
             shoot_pub_.publish(shoot);
@@ -68,9 +59,6 @@ class JoyController {
 
         max_linear_vel_ = pnh_.param<double>("max_linear_vel", 0.5);
         max_angular_vel_ = pnh_.param<double>("max_angular_vel", 1.0);
-
-        audio_player_ = std::make_unique<AudioPlayer>();
-        audio_player_->loadSound("shoot", "/home/seki-y/DemoPro2024/src/joy_controller/sound/shoot_gun.wav");
     };
     ~JoyController(){};
 };

@@ -11,6 +11,9 @@
 #include <tf2_ros/transform_listener.h>
 #include <vector>
 
+#include "audio_player/audio_player.h"
+
+
 class BulletLauncher {
   private:
     ros::NodeHandle nh_;
@@ -39,6 +42,7 @@ class BulletLauncher {
     double bullet_speed_;
     double bullet_lifetime_;
     nav_msgs::OccupancyGrid map_data_;
+    std::unique_ptr<AudioPlayer> audio_player_;
 
   public:
     BulletLauncher() : nh_(), pnh_("~"), tf_buffer_(), tf_listener_(tf_buffer_) {
@@ -51,6 +55,9 @@ class BulletLauncher {
         bullet_speed_ = pnh_.param<double>("bullet_speed", 1.0);
         bullet_lifetime_ = pnh_.param<double>("bullet_lifetime", 10.0);
         bullet_poses_.header.frame_id = map_frame_id_;
+
+        audio_player_ = std::make_unique<AudioPlayer>();
+        audio_player_->loadSound("shoot", "/home/nakao-t/DemoPro2024/src/joy_controller/sound/shoot_gun.wav");
     }
 
     void shootCallback(const std_msgs::Bool::ConstPtr &shoot_msg) {
@@ -75,6 +82,7 @@ class BulletLauncher {
         new_bullet.speed = bullet_speed_;
         new_bullet.lifetime = bullet_lifetime_;
         bullets_.push_back(new_bullet);
+        audio_player_->playSound("shoot");
         ROS_INFO("Bullet created");
     }
 

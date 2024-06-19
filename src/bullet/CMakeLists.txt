@@ -24,6 +24,7 @@ include_directories(
 add_executable(bullet_launcher src/bullet_launcher.cpp)
 target_link_libraries(bullet_launcher
   ${catkin_LIBRARIES}
+  sfml-audio
 )
 
 add_executable(death_judge src/death_judge.cpp)
