@@ -27,7 +27,7 @@
                 <param name="max_linear_vel" value="0.5" />
                 <param name="max_angular_vel" value="1.0" />
             </node>
-            <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="$(arg initial_x) $(arg initial_y) 0 0 0 $(arg initial_th) /map $(arg robot_name)/odom" />
+            <node name="map_to_odom" pkg="tf2_ros" type="static_transform_publisher" args="$(arg initial_x) $(arg initial_y) 0 $(arg initial_th) 0 0 /map $(arg robot_name)/odom" />
         </group>
 
         <group if="$(arg joy_node)">
