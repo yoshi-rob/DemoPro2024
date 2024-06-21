@@ -1,0 +1,23 @@
+<launch>
+    <arg name="rviz_config" default="$(find bullet)/rviz/bullet_launcher.rviz" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find my_map_server)/map/field2.yaml" output="screen" />
+
+    <arg name="joy_dev1" default="/dev/input/js0" />
+    <arg name="joy_dev2" default="/dev/input/js1" />
+    <arg name="robot_name1" default="Robot1" />
+    <arg name="robot_name2" default="Robot2" />
+
+    <group ns="$(arg robot_name1)">
+        <node name="joy_node" pkg="joy" type="joy_node" output="screen">
+            <param name="dev" value="$(arg joy_dev1)" />
+        </node>
+    </group>
+
+    <group ns="$(arg robot_name2)">
+        <node name="joy_node" pkg="joy" type="joy_node" output="screen">
+            <param name="dev" value="$(arg joy_dev2)" />
+        </node>
+    </group>
+
+</launch>

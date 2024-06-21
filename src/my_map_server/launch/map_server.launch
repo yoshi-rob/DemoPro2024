@@ -1,0 +1,9 @@
+<launch>
+    <node name="map_server" pkg="my_map_server" type="map_server" output="screen">
+        <param name="width" value="5"/>
+        <param name="height" value="3"/>
+        <param name="resolution" value="0.05"/>
+    </node>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find my_map_server)/rviz/map_server.rviz"/>
+</launch>

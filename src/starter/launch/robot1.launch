@@ -1,0 +1,15 @@
+<launch>
+    <include file="$(find bullet)/launch/bullet_launcher.launch">
+        <!-- [speego] or [beego] or [M1] -->
+        <arg name="robot_type" value="$(find starter)/config/beego.param" />
+        <arg name="joy_dev" value="/dev/input/js0" />
+        <arg name="joy_node" default="false" />
+        <arg name="robot_name" value="Robot1" />
+        <arg name="opponent_robot_name" value="Robot2" />
+        <arg name="initial_x" value="0.0" />
+        <arg name="initial_y" value="0.0" />
+        <arg name="initial_th" value="0.0" />
+        <arg name="ypspur" value="true" />
+        <arg name="robot_tf" value="false" />
+    </include>
+</launch>

@@ -6,17 +6,24 @@
 class RobotTfBroadcaster {
   private:
     ros::NodeHandle nh_;
+    ros::NodeHandle pnh_;
     ros::Subscriber cmd_vel_sub_;
     tf2_ros::TransformBroadcaster tf_broadcaster_;
     geometry_msgs::Twist last_cmd_vel_;
-    std::string base_frame_id_ = "base_link";
-    std::string odom_frame_id_ = "odom";
+    std::string robot_frame_id_;
+    std::string odom_frame_id_;
     ros::Time last_time_;
     double x_ = 0.0, y_ = 0.0, th_ = 0.0;
 
   public:
-    RobotTfBroadcaster() : nh_() {
+    RobotTfBroadcaster() : nh_(), pnh_("~") {
         cmd_vel_sub_ = nh_.subscribe("cmd_vel", 10, &RobotTfBroadcaster::cmdVelCallback, this);
+
+        x_ = pnh_.param<double>("initial_x", 0.0);
+        y_ = pnh_.param<double>("initial_y", 0.0);
+        th_ = pnh_.param<double>("initial_th", 0.0);
+        robot_frame_id_ = pnh_.param<std::string>("robot_frame_id", "base_link");
+        odom_frame_id_ = pnh_.param<std::string>("odom_frame_id", "odom");
     }
 
     void cmdVelCallback(const geometry_msgs::Twist::ConstPtr &cmd_vel_msg) { last_cmd_vel_ = *cmd_vel_msg; }
@@ -33,7 +40,7 @@ class RobotTfBroadcaster {
         geometry_msgs::TransformStamped transform;
         transform.header.stamp = current_time;
         transform.header.frame_id = odom_frame_id_;
-        transform.child_frame_id = base_frame_id_;
+        transform.child_frame_id = robot_frame_id_;
         transform.transform.translation.x = x_;
         transform.transform.translation.y = y_;
         transform.transform.translation.z = 0.0;
