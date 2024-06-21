@@ -1,6 +1,6 @@
 <launch>
     <arg name="joy_dev" default="/dev/input/js2" />
-    <arg name="joy_node" default="false" />
+    <arg name="joy_node" default="true" />
     <arg name="ypspur" default="false" />
     <arg name="robot_tf" default="true" />
     <!-- [speego] or [beego] or [M1] -->

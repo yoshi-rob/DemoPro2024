@@ -28,7 +28,7 @@ class JoyController {
         }
         geometry_msgs::Twist twist;
         twist.linear.x = msg->axes[1] * max_linear_vel_;
-        twist.angular.z = msg->axes[3] * max_angular_vel_;
+        twist.angular.z = msg->axes[2] * max_angular_vel_;
         cmd_vel_pub_.publish(twist);
 
         if (has_joy_msg_ && msg->buttons[5] == 1 && last_joy_.buttons[5] == 0) {
