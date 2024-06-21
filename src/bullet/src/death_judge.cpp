@@ -1,5 +1,6 @@
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <ros/package.h>
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 #include <tf2_ros/buffer.h>
@@ -35,8 +36,9 @@ class DeathJudge {
         robot_frame_id_ = pnh_.param<std::string>("robot_frame_id", "base_link");
 
         audio_player_ = std::make_unique<AudioPlayer>();
-        // TODO: wavファイルを用意する
-        audio_player_->loadSound("game_over", "/home/seki-y/DemoPro2024/src/bullet/sound/game_over.wav");
+        std::string package_path = ros::package::getPath("bullet");
+        std::string sound_path = package_path + "/sound/game_over.wav";
+        audio_player_->loadSound("game_over", sound_path);
     }
 
     void bulletsCallback(const geometry_msgs::PoseArray::ConstPtr &bullets_msg) { bullet_poses_ = *bullets_msg; }

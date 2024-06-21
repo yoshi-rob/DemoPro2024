@@ -10,8 +10,10 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
   tf2_ros
   audio_player
+  roslib
 )
 find_package(SFML 2.5 COMPONENTS audio REQUIRED)
+# find_package(roslib REQUIRED)
 
 catkin_package(
 )

@@ -4,6 +4,7 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <math.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <ros/package.h>
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 #include <tf2/utils.h>
@@ -12,7 +13,6 @@
 #include <vector>
 
 #include "audio_player/audio_player.h"
-
 
 class BulletLauncher {
   private:
@@ -57,12 +57,15 @@ class BulletLauncher {
         bullet_poses_.header.frame_id = map_frame_id_;
 
         audio_player_ = std::make_unique<AudioPlayer>();
-        audio_player_->loadSound("shoot", "/home/nakao-t/DemoPro2024/src/joy_controller/sound/shoot_gun.wav");
+        std::string package_path = ros::package::getPath("bullet");
+        std::string sound_path = package_path + "/sound/shoot_gun.wav";
+        audio_player_->loadSound("shoot", sound_path);
     }
 
     void shootCallback(const std_msgs::Bool::ConstPtr &shoot_msg) {
         if (shoot_msg->data) {
             if (bullets_.size() < max_bullets_) {
+                audio_player_->playSound("shoot");
                 createBullet();
             }
         }
@@ -82,7 +85,6 @@ class BulletLauncher {
         new_bullet.speed = bullet_speed_;
         new_bullet.lifetime = bullet_lifetime_;
         bullets_.push_back(new_bullet);
-        audio_player_->playSound("shoot");
         ROS_INFO("Bullet created");
     }
 
